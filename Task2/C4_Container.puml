@@ -1,0 +1,68 @@
+@startuml
+title Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Клиент")
+Person(staff, "Сотрудник ресепшн")
+Person(doctor, "Врач")
+Person(analytic, "Аналитик")
+
+System(UserPortal, "Портал для клиентов", "")
+System(StaffPortal, "Портал для сотрудников ресепшена", "")
+System(CRM, "CRM для сбора данных о клиентах", "")
+System(BI, "BI", "Сервис на базе BI")
+System(lab, "Лаборатория", "")
+
+
+Container_Boundary(UserPortal, "User Portal") {
+  Container(UserPortalWebApp, "User Portal WebApp", "Веб портал для пациента")
+  Container(UserPortalMobile, "User Portal Mobile", "Мобильное приложение")
+  Container(UserPortalService, "User Portal Service", "Сервис портала пациента")
+  Container(UserPortalDB, "Database", "БД портала пациента")
+}
+
+Container_Boundary(StaffPortal, "Staff Portal") {
+  Container(StaffPortalWebApp, "Staff Portal WebApp", "Портал для сотрудников ресепшена")
+  Container(StaffPortalService, "StaffPortal Service", "Сервис портала для сотрудников ресепшена")
+  Container(StaffPortalDB, "Database", "Oracle", "БД портала")
+}
+
+Container_Boundary(CRM, "CRM System") {
+  Container(CRMService, "CRM", "Сервис CRM")
+  Container(CRM_DB, "Database", "Oracle", "БД сервиса")
+  Container(MessegeService, "Messege Service", "Сервис сообщений")
+}
+
+Container_Boundary(BI, "Analytics BI") {
+  Container(BIService, "BI Service", "Сервис на базе BI")
+  Container(BI_DB, "Database", "Озеро данных")
+}
+
+Rel(user, UserPortal, "https, аутентификация пользователя")
+Rel(UserPortalWebApp, UserPortalService, "Запись к врачу")
+Rel(UserPortalMobile, UserPortalService, "Запись к врачу, оповещение")
+Rel(UserPortalService, UserPortalDB, "https, TLS")
+
+Rel(staff, StaffPortal, "https, аутентификация пользователя")
+Rel(StaffPortalWebApp, StaffPortalService, "https")
+Rel(StaffPortalService, StaffPortalDB, "https, TLS")
+
+Rel(doctor, CRM, "https, аутентификация пользователя")
+Rel(CRMService, CRM_DB, "https, TLS")
+Rel(CRMService, MessegeService, "https, TLS")
+
+Rel(UserPortal, CRM, "обезличивание данных, TLS")
+Rel(StaffPortal, CRM, "обезличивание данных, TLS")
+Rel(lab, CRM, "обезличивание данных, TLS")
+
+Rel(analytic, BI, "https, аутентификация пользователя")
+Rel(BIService, BI_DB, "тегирование данных, шифрование")
+
+Rel(CRM, BI, "https, TLS, обезличивание")
+Rel(UserPortal, BI, "https, TLS, обезличивание")
+Rel(StaffPortal, BI, "https, TLS, обезличивание")
+
+@enduml
